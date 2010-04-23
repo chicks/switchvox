@@ -1,0 +1,70 @@
+= Switchvox
+
+* http://github.com/chicks/switchvox
+
+== SUMMARY: 
+
+Ruby Gem for interacting with Digium's Switchvox PBX via JSON
+
+== DESCRIPTION:
+
+Ruby Gem for interacting with Digium's Switchvox PBX via JSON.
+
+There wasn't a gem out there, so I wrote one.
+
+== FEATURES/PROBLEMS:
+
+* The response hash gets converted into a Ruby object, via Hash#to_obj method.
+
+== SYNOPSIS:
+
+  require 'switchvox'
+  switchvox = Switchvox::Base.new("pbx.foo.com", 'user', 'password', {:debug => false})
+
+  # Pull the software version of Switchvox
+  switchvox.request("switchvox.info.getSoftwareVersion")
+
+  # Pull a call report
+  call_log = switchvox.request("switchvox.callLogs.search", {
+    "start_date"  => "2010-01-01 00:00:00",
+    "end_date"    => "2010-01-02 23:59:59",
+    "account_ids" => [1001],
+  })
+  calls = call_log.calls.call
+  calls.each do |call|
+    c = call.to_obj
+    puts calls.index(call).to_s + ": " + c.start_time + ": " + c.from + " " + c.to
+  end
+
+== REQUIREMENTS:
+
+* json gem
+
+== INSTALL:
+
+* sudo gem install switchvox
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2010 Carl Hicks
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
