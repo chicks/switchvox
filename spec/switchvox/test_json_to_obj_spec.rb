@@ -20,18 +20,23 @@ describe Switchvox do
   end
 
   it 'should test test_deep_nest_mixed' do
-    input = {"kennels" => [
-            {"dallas" => [
-             {"name" => "north"},
-             {"name"  => "east"},
-            ]},
-            {"frisco" => [
-             {"name" => "south"},
-             {"name"  => "west"}
-            ],
-            "company" => "Doggie Daze"
-            }
-          ]}
+    input = {
+      "kennels" => [
+        {
+          "dallas" => [
+            {"name" => "north"},
+            {"name"  => "east"},
+          ]
+        },
+        {
+          "frisco" => [
+            {"name" => "south"},
+            {"name"  => "west"}
+          ],
+          "company" => "Doggie Daze"
+        }
+      ]
+    }
 
     obj  = JSON.parse(input.to_json).to_obj
 
