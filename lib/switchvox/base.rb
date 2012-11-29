@@ -22,7 +22,7 @@ class UnhandledResponse < RuntimeError
 end
 
 # The primary class used to interact with Switchvox.
-class Base 
+class Base
 
   URL = "/json"
   attr :host, true
@@ -44,7 +44,7 @@ class Base
     @url  = URI.parse("https://" + @host + URL)
     @ssl  = false
     @ssl  = true if @url.scheme == "https"
-        
+
     @connection  = false
     @auth_header = false
     login!
@@ -55,7 +55,7 @@ class Base
   def request(method, parameters={})
     login! unless logged_in?
     json = wrap_json(method, parameters)
-    
+
     # Send the request
     header   = {'Content-Type' => "text/json"}
     request  = Net::HTTP::Post.new(@url.path, header)
@@ -75,7 +75,7 @@ class Base
         response_json = JSON.parse response.body
         if @debug
           puts "#{method}: Response:"
-          pp response_json 
+          pp response_json
           puts "\n\n"
         end
         response_obj = response_json["response"]["result"].to_obj
@@ -84,7 +84,7 @@ class Base
         login!
         request(method, parameters)
       when Net::HTTPForbidden
-        raise LoginError, "Invalid Username or Password" 
+        raise LoginError, "Invalid Username or Password"
       else raise UnhandledResponse, "Can't handle response #{response}"
     end
   end
@@ -96,7 +96,7 @@ class Base
       return false unless @auth_header
       true
     end
-  
+
     # Attempt HTTP Digest Authentication with Switchvox
     def login!
       connect! unless connected?
@@ -137,7 +137,7 @@ class Base
     end
 
 end
-  
+
 end
 
 

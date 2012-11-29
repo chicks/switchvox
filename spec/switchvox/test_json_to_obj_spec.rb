@@ -1,25 +1,25 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require 'spec_helper'
 
-class TestJson2Object < Test::Unit::TestCase
-  def test_object
+describe Switchvox do
+  it 'should test_object' do
     json = {"string" => "value"}.to_json
     obj  = JSON.parse(json).to_obj
-    assert_equal("value", obj.string)
+    obj.string.should == 'value'
   end
-  
-  def test_nested_object
+
+  it 'should test test_nested_object' do
     json = {"dogs" => {"retriever" => "sparky", "basset" => "jennie", "pinscher" => "carver"}}.to_json
     obj  = JSON.parse(json).to_obj
-    assert_equal("sparky", obj.dogs.retriever)
+    obj.dogs.retriever.should == 'sparky'
   end
-  
-  def test_array_of_objects
+
+  it 'should test test_array_of_objects' do
     json = [{"retriever" => "sparky"}, {"basset" => "jennie"}, {"pinscher" => "carver"}].to_json
     obj  = JSON.parse(json).to_obj
-    assert_equal("sparky", obj[0].retriever)
+    obj[0].retriever.should == "sparky"
   end
-  
-  def test_deep_nest_mixed
+
+  it 'should test test_deep_nest_mixed' do
     json = {"kennels" => [
             {"dallas" => [
              {"name" => "north"},
@@ -33,10 +33,10 @@ class TestJson2Object < Test::Unit::TestCase
             }
           ]}.to_json
     obj  = JSON.parse(json).to_obj
-    assert_equal("west", obj.kennels[1].frisco[0].name)
+    obj.kennels[1].frisco[0].name.should == 'west'
   end
-  
-  def test_deep_nest_hash
+
+  it 'should test test_deep_nest_hash' do
     json = {"kennels" => {
             "kennel" => {
             "dallas" => ["north", "south"],
@@ -44,6 +44,6 @@ class TestJson2Object < Test::Unit::TestCase
            }.to_json
     obj  = JSON.parse(json).to_obj
     pp obj
-    assert_equal("north", obj.kennels.kennel.dallas[0])
+    obj.kennels.kennel.dallas[0].should == 'north'
   end
 end
