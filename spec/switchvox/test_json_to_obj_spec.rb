@@ -20,7 +20,7 @@ describe Switchvox do
   end
 
   it 'should test test_deep_nest_mixed' do
-    json = {"kennels" => [
+    input = {"kennels" => [
             {"dallas" => [
              {"name" => "north"},
              {"name"  => "east"},
@@ -31,9 +31,14 @@ describe Switchvox do
             ],
             "company" => "Doggie Daze"
             }
-          ]}.to_json
-    obj  = JSON.parse(json).to_obj
-    obj.kennels[1].frisco[0].name.should == 'west'
+          ]}
+
+    obj  = JSON.parse(input.to_json).to_obj
+
+    obj.kennels.should == input.kennels
+    obj.kennels[1].should == input.kennels[1]
+    obj.kennels[1].frisco.should == input.kennels[1].frisco
+    obj.kennels[1].frisco[0].name.should == input.kennels[1].frisco[0].name
   end
 
   it 'should test test_deep_nest_hash' do

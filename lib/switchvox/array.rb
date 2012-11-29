@@ -1,4 +1,3 @@
-# A fancy way of iterating over an array and converting hashes to objects
 class Array
   def to_obj
     # Make a deep copy of the array
