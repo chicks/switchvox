@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'switchvox'
 
 describe Switchvox do
   it 'should test_object' do

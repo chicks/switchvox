@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'switchvox/base'
 
 describe Switchvox::Base do
   let(:host) { 'example.com' }
@@ -10,5 +9,4 @@ describe Switchvox::Base do
     req = Net::HTTP.new(host, '8080')
     Switchvox::Base.new(host ,Faker::Internet.user_name, 'password')
   end
-
 end
