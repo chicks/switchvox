@@ -8,6 +8,7 @@ require 'openssl'
 require 'digest/md5'
 require 'rubygems'
 require 'json'
+require 'ostruct'
 
 # Raised when credentials are incorrect
 class LoginError < RuntimeError
@@ -77,9 +78,23 @@ class Base
     end
   end
 
+  # TODO - cover this with specs and return json not call other method
   def json_parse(body)
-    response_json = JSON.parse body
-    response_json["response"]["result"].to_obj
+    json = JSON.parse body
+    convert_to_obj(json["response"]["result"])
+  end
+
+  def convert_to_obj(hash)
+    hash.each do |x, y|
+      unless y.is_a? String
+        y.map! do |v|
+          convert_to_obj(v)
+        end
+      end
+    end
+    o = OpenStruct.new
+    o.marshal_load Hash[hash.map {|k, v| [k.to_sym, v] }]
+    o
   end
 
   protected

@@ -52,7 +52,7 @@ describe Switchvox::Base do
         ]
       }
       obj = switchvox.json_parse(response_json(input))
-      obj.kennels[1].frisco[0].name.should == 'west'
+      obj.kennels[1].frisco[1].name.should == 'west'
     end
 
     it 'should test test_deep_nest_hash' do
