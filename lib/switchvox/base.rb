@@ -58,6 +58,7 @@ class Base
 
     # Send the request
     header   = {'Content-Type' => "text/json"}
+
     request  = Net::HTTP::Post.new(@url.path, header)
     request.digest_auth(@user, @pass, @auth_header)
     request.body = json
@@ -66,9 +67,7 @@ class Base
     case response
       when Net::HTTPOK
         raise EmptyResponse unless response.body
-        response_json = JSON.parse response.body
-        response_obj = response_json["response"]["result"].to_obj
-        return response_obj
+        return json_parse(response.body)
       when Net::HTTPUnauthorized
         login!
         request(method, parameters)
@@ -76,6 +75,11 @@ class Base
         raise LoginError, "Invalid Username or Password"
       else raise UnhandledResponse, "Can't handle response #{response}"
     end
+  end
+
+  def json_parse(body)
+    response_json = JSON.parse body
+    response_json["response"]["result"].to_obj
   end
 
   protected
