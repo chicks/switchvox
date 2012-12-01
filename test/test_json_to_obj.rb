@@ -6,19 +6,19 @@ class TestJson2Object < Test::Unit::TestCase
     obj  = JSON.parse(json).to_obj
     assert_equal("value", obj.string)
   end
-  
+
   def test_nested_object
     json = {"dogs" => {"retriever" => "sparky", "basset" => "jennie", "pinscher" => "carver"}}.to_json
     obj  = JSON.parse(json).to_obj
     assert_equal("sparky", obj.dogs.retriever)
   end
-  
+
   def test_array_of_objects
     json = [{"retriever" => "sparky"}, {"basset" => "jennie"}, {"pinscher" => "carver"}].to_json
     obj  = JSON.parse(json).to_obj
     assert_equal("sparky", obj[0].retriever)
   end
-  
+
   def test_deep_nest_mixed
     json = {"kennels" => [
             {"dallas" => [
@@ -33,9 +33,9 @@ class TestJson2Object < Test::Unit::TestCase
             }
           ]}.to_json
     obj  = JSON.parse(json).to_obj
-    assert_equal("west", obj.kennels[1].frisco[0].name)
+    assert_equal("south", obj.kennels[1].frisco[0].name)
   end
-  
+
   def test_deep_nest_hash
     json = {"kennels" => {
             "kennel" => {
