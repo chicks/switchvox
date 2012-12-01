@@ -63,21 +63,10 @@ class Base
     request.body = json
     response = @connection.request(request)
 
-    if @debug
-      puts "#{method}: Request"
-      puts json
-      puts "\n"
-    end
-
     case response
       when Net::HTTPOK
         raise EmptyResponse unless response.body
         response_json = JSON.parse response.body
-        if @debug
-          puts "#{method}: Response:"
-          pp response_json
-          puts "\n\n"
-        end
         response_obj = response_json["response"]["result"].to_obj
         return response_obj
       when Net::HTTPUnauthorized
@@ -117,9 +106,6 @@ class Base
         @connection.use_ssl = true
         @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      if @debug
-        #@connection.set_debug_output $stderr
-      end
       @connection.start
     end
 
@@ -139,7 +125,5 @@ class Base
 end
 
 end
-
-
 
 
