@@ -16,47 +16,52 @@ describe Switchvox::Base do
 
   describe 'parse json and return object' do
     it 'should test_object' do
-      json = {"string" => "value"}
-      obj = switchvox.json_parse(response_json(json))
+      input = {"string" => "value"}
+      obj = switchvox.json_parse(response_json(input))
       obj.string.should == 'value'
     end
 
     it 'should test test_nested_object' do
-      json = {"dogs" => {"retriever" => "sparky", "basset" => "jennie", "pinscher" => "carver"}}
-      obj = switchvox.json_parse(response_json(json))
+      input = {"dogs" => {"retriever" => "sparky", "basset" => "jennie", "pinscher" => "carver"}}
+      obj = switchvox.json_parse(response_json(input))
       obj.dogs.retriever.should == 'sparky'
     end
 
     it 'should test test_array_of_objects' do
-      json = [{"retriever" => "sparky"}, {"basset" => "jennie"}, {"pinscher" => "carver"}]
-      obj = switchvox.json_parse(response_json(json))
+      input = [{"retriever" => "sparky"}, {"basset" => "jennie"}, {"pinscher" => "carver"}]
+      obj = switchvox.json_parse(response_json(input))
       obj[0].retriever.should == "sparky"
     end
 
     it 'should test test_deep_nest_mixed' do
-      json = {"kennels" => [
-              {"dallas" => [
-               {"name" => "north"},
-               {"name"  => "east"},
-              ]},
-              {"frisco" => [
-               {"name" => "south"},
-               {"name"  => "west"}
-              ],
-              "company" => "Doggie Daze"
-              }
-            ]}
-      obj = switchvox.json_parse(response_json(json))
+      input = {
+        "kennels" => [
+          {
+            "dallas" => [
+              {"name" => "north"},
+              {"name"  => "east"},
+            ]
+          },
+          {
+            "frisco" => [
+              {"name" => "south"},
+              {"name"  => "west"}
+            ],
+            "company" => "Doggie Daze"
+          }
+        ]
+      }
+      obj = switchvox.json_parse(response_json(input))
       obj.kennels[1].frisco[0].name.should == 'west'
     end
 
     it 'should test test_deep_nest_hash' do
-      json = {"kennels" => {
+      input = {"kennels" => {
               "kennel" => {
               "dallas" => ["north", "south"],
               "frisco" => ["east", "west"]}}
              }
-      obj = switchvox.json_parse(response_json(json))
+      obj = switchvox.json_parse(response_json(input))
       obj.kennels.kennel.dallas[0].should == 'north'
     end
   end
