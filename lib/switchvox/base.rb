@@ -87,9 +87,7 @@ class Base
   def convert_to_obj(arg)
     if arg.is_a? Hash
       arg.each { |k, v| arg[k] = convert_to_obj(v) }
-      o = OpenStruct.new
-      o.marshal_load Hash[arg.map { |k, v| [k.to_sym, v] }]
-      return o
+      OpenStruct.new arg
     elsif arg.is_a? Array
       arg.map! { |v| convert_to_obj(v) }
     else
