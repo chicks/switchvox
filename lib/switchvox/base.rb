@@ -84,17 +84,17 @@ class Base
     convert_to_obj(json["response"]["result"])
   end
 
-  def convert_to_obj(hash)
-    hash.each do |x, y|
-      unless y.is_a? String
-        y.map! do |v|
-          convert_to_obj(v)
-        end
-      end
+  def convert_to_obj(arg)
+    if arg.is_a? Hash
+      arg.each { |k, v| convert_to_obj(v) }
+      o = OpenStruct.new
+      o.marshal_load Hash[arg.map { |k, v| [k.to_sym, v] }]
+      return o
+    elsif arg.is_a? Array
+      arg.map! { |v| convert_to_obj(v) }
+    else
+      arg
     end
-    o = OpenStruct.new
-    o.marshal_load Hash[hash.map {|k, v| [k.to_sym, v] }]
-    o
   end
 
   protected
