@@ -56,11 +56,14 @@ describe Switchvox::Base do
     end
 
     it 'should test test_deep_nest_hash' do
-      input = [
-        {"retriever" => "sparky"},
-        {"basset" => "jennie"},
-        {"pinscher" => "carver"}
-      ]
+      input = {
+        "kennels" => {
+          "kennel" => {
+            "dallas" => ["north", "south"],
+            "frisco" => ["east", "west"]
+          }
+        }
+      }
       obj = switchvox.json_parse(response_json(input))
       obj.kennels.kennel.dallas[0].should == 'north'
     end
