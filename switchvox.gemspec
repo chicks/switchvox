@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
     script/generate
     spec/spec_helper.rb
     spec/switchvox/base_spec.rb
+    switchvox.gemspec
   ]
   spec.add_dependency('rake', '~> 10.0')
   spec.add_dependency('rspec', '~> 2.12')
