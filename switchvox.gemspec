@@ -20,9 +20,8 @@ Gem::Specification.new do |spec|
     spec/switchvox/base_spec.rb
     switchvox.gemspec
   ]
-  spec.add_dependency('rake', '~> 10.0')
-  spec.add_dependency('rspec', '~> 2.12')
-  spec.add_dependency('ffaker', '~> 1.15')
-  spec.add_dependency('webmock', '~> 1.9')
-  spec.add_dependency('hoe', '>= 3.3')
+  spec.add_development_dependency('rake', '~> 10.0')
+  spec.add_development_dependency('rspec', '~> 2.12')
+  spec.add_development_dependency('ffaker', '~> 1.15')
+  spec.add_development_dependency('webmock', '~> 1.9')
 end
