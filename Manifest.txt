@@ -14,3 +14,4 @@ script/destroy
 script/generate
 spec/spec_helper.rb
 spec/switchvox/base_spec.rb
+switchvox.gemspec
