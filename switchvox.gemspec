@@ -2,7 +2,7 @@ Gem::Specification.new do |spec|
   spec.name = 'switchvox'
   spec.author = 'Carl Hicks'
   spec.version = '0.1.0'
-  spec.platform = Gem::Platform::Ruby
+  spec.platform = Gem::Platform::RUBY
   spec.summary = 'An interface with Switchvox API'
   spec.homepage = 'https://github.com/chicks/switchvox'
   spec.description = 'Basic interface to allow ruby applications to interface with the SwitchVox XML API'
