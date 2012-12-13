@@ -1,1 +1,4 @@
 pkg
+.rivmrc
+.rspec
+Gemfile.lock
