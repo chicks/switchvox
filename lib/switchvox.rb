@@ -1,9 +1,6 @@
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-require 'switchvox/hash'
-require 'switchvox/array'
-require 'switchvox/object'
 require 'switchvox/net_http_digest_auth'
 require 'switchvox/base'
 

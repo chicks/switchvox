@@ -8,6 +8,7 @@ require 'openssl'
 require 'digest/md5'
 require 'rubygems'
 require 'json'
+require 'ostruct'
 
 # Raised when credentials are incorrect
 class LoginError < RuntimeError
@@ -22,7 +23,7 @@ class UnhandledResponse < RuntimeError
 end
 
 # The primary class used to interact with Switchvox.
-class Base 
+class Base
 
   URL = "/json"
   attr :host, true
@@ -44,7 +45,7 @@ class Base
     @url  = URI.parse("https://" + @host + URL)
     @ssl  = false
     @ssl  = true if @url.scheme == "https"
-        
+
     @connection  = false
     @auth_header = false
     login!
@@ -55,37 +56,42 @@ class Base
   def request(method, parameters={})
     login! unless logged_in?
     json = wrap_json(method, parameters)
-    
+
     # Send the request
     header   = {'Content-Type' => "text/json"}
+
     request  = Net::HTTP::Post.new(@url.path, header)
     request.digest_auth(@user, @pass, @auth_header)
     request.body = json
     response = @connection.request(request)
 
-    if @debug
-      puts "#{method}: Request"
-      puts json
-      puts "\n"
-    end
-
     case response
       when Net::HTTPOK
         raise EmptyResponse unless response.body
-        response_json = JSON.parse response.body
-        if @debug
-          puts "#{method}: Response:"
-          pp response_json 
-          puts "\n\n"
-        end
-        response_obj = response_json["response"]["result"].to_obj
-        return response_obj
+        return json_parse(response.body)
       when Net::HTTPUnauthorized
         login!
         request(method, parameters)
       when Net::HTTPForbidden
-        raise LoginError, "Invalid Username or Password" 
+        raise LoginError, "Invalid Username or Password"
       else raise UnhandledResponse, "Can't handle response #{response}"
+    end
+  end
+
+  # TODO - cover this with specs and return json not call other method
+  def json_parse(body)
+    json = JSON.parse body
+    convert_to_obj(json["response"]["result"])
+  end
+
+  def convert_to_obj(arg)
+    if arg.is_a? Hash
+      arg.each { |k, v| arg[k] = convert_to_obj(v) }
+      OpenStruct.new arg
+    elsif arg.is_a? Array
+      arg.map! { |v| convert_to_obj(v) }
+    else
+      arg
     end
   end
 
@@ -96,7 +102,7 @@ class Base
       return false unless @auth_header
       true
     end
-  
+
     # Attempt HTTP Digest Authentication with Switchvox
     def login!
       connect! unless connected?
@@ -117,9 +123,6 @@ class Base
         @connection.use_ssl = true
         @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      if @debug
-        #@connection.set_debug_output $stderr
-      end
       @connection.start
     end
 
@@ -137,9 +140,7 @@ class Base
     end
 
 end
-  
+
 end
-
-
 
 
