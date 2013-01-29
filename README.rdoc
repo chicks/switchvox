@@ -36,6 +36,16 @@ There wasn't a gem out there, so I wrote one.
     puts calls.index(call).to_s + ": " + c.start_time + ": " + c.from + " " + c.to
   end
 
+  # Methods that require a file upload can be submitted with the upload method
+  upload = switchvox.upload("switchvox.file.add", {
+    "file"  => "/path/to/file.ext"
+  })
+
+  upload = switchvox.upload("switchvox.images.add", {
+    "image_file"  => "/path/to/file.ext",
+    "image_type"  => "profile"
+  })
+
 == REQUIREMENTS:
 
 * json gem

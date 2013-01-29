@@ -9,6 +9,7 @@ require 'digest/md5'
 require 'rubygems'
 require 'json'
 require 'ostruct'
+require 'mime/types'
 
 # Raised when credentials are incorrect
 class LoginError < RuntimeError
@@ -26,6 +27,7 @@ end
 class Base
 
   URL = "/json"
+  BOUNDARY = "---------------------------7d44e178b0434"
   attr :host, true
   attr :url, true
   attr :user, false
@@ -54,28 +56,17 @@ class Base
 
   # A standard REST call to get a list of entries
   def request(method, parameters={})
-    login! unless logged_in?
-    json = wrap_json(method, parameters)
-
-    # Send the request
+    body = wrap_json(method, parameters)
     header   = {'Content-Type' => "text/json"}
+    # Send the request
+    send_request(body, header)
 
-    request  = Net::HTTP::Post.new(@url.path, header)
-    request.digest_auth(@user, @pass, @auth_header)
-    request.body = json
-    response = @connection.request(request)
+  end
 
-    case response
-      when Net::HTTPOK
-        raise EmptyResponse unless response.body
-        return json_parse(response.body)
-      when Net::HTTPUnauthorized
-        login!
-        request(method, parameters)
-      when Net::HTTPForbidden
-        raise LoginError, "Invalid Username or Password"
-      else raise UnhandledResponse, "Can't handle response #{response}"
-    end
+  def upload(method, parameters={})
+    body = multipart_upload(method, parameters)
+    header = {'Content-Type' => 'multipart/form-data; boundary=' + BOUNDARY}
+    send_request(body, header)
   end
 
   # TODO - cover this with specs and return json not call other method
@@ -96,6 +87,56 @@ class Base
   end
 
   protected
+
+    def send_request(body, header)
+      login! unless logged_in?
+      request  = Net::HTTP::Post.new(@url.path, header)
+      request.digest_auth(@user, @pass, @auth_header)
+      request.body = body
+      response = @connection.request(request)
+
+      case response
+        when Net::HTTPOK
+          raise EmptyResponse unless response.body
+          return json_parse(response.body)
+        when Net::HTTPUnauthorized
+          login!
+          request(method, parameters)
+        when Net::HTTPForbidden
+          raise LoginError, "Invalid Username or Password"
+        else raise UnhandledResponse, "Can't handle response #{response}"
+      end
+    end
+
+    def multipart_upload(method, parameters)
+
+      # assume the parameter with the word 'file' as part of the key represents the file to be uploaded
+      # we'll set it to the file variable then remove it from the rest of the parameters
+      file = ""
+      parameters.each do |k,v|
+        if k.to_s.scan('file').length > 0
+          file = v
+          parameters.delete(k)
+          break
+        end
+      end
+      json = wrap_json(method, parameters)
+
+      # build the body of the request
+      # add the file data
+      post_body = []
+      post_body << "--#{BOUNDARY}\r\n"
+      post_body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file)}\"\r\n"
+      post_body << "Content-Type: #{MIME::Types.type_for(file)[0]}\r\n\r\n"
+      post_body << File.read(file)
+
+      # add the json with the method name
+      post_body << "--#{BOUNDARY}\r\n"
+      post_body << "Content-Disposition: form-data; name=\"request\"\r\n\r\n"
+      post_body << json
+      post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
+      return post_body.join
+    end
 
     # Check to see if we are logged in
     def logged_in?
