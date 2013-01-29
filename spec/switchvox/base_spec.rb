@@ -14,6 +14,27 @@ describe Switchvox::Base do
     Hash['response', Hash['result', body]].to_json
   end
 
+  describe "multipart_upload" do
+
+    # add a public instance to a private method for testing
+    # create a test file
+    before(:all) do
+      module Switchvox; class Base; def public_multipart_upload(f); multipart_upload(f); end; end; end
+      File.open "/tmp/testfile.xml", "w" do |file|
+        file.write("<element></element>")
+      end
+      @file = "/tmp/testfile.xml"
+    end
+
+    it "should return a string" do
+      switchvox.public_multipart_upload(@file).class.should eq String
+    end
+
+    it "should return form data" do
+      switchvox.public_multipart_upload(@file).should include "Content-Disposition: form-data;"
+    end
+  end
+
   describe 'parse json and return object' do
     it 'should test_object' do
       input = {"string" => "value"}
