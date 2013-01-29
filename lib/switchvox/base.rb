@@ -26,6 +26,7 @@ end
 class Base
 
   URL = "/json"
+  BOUNDRY = "---------------------------7d44e178b0434"
   attr :host, true
   attr :url, true
   attr :user, false
@@ -55,14 +56,20 @@ class Base
   # A standard REST call to get a list of entries
   def request(method, parameters={})
     login! unless logged_in?
-    json = wrap_json(method, parameters)
+
+    # if the method is a switchvox.file.add, the post needs to be a multipart upload
+    unless method == "switchvox.file.add"
+      body = wrap_json(method, parameters)
+      header   = {'Content-Type' => "text/json"}
+    else
+      body = multipart_upload(parameters[:file])
+      header = {'Content-Type' => 'multipart/form-data; boundry=' + BOUNDRY}
+    end
 
     # Send the request
-    header   = {'Content-Type' => "text/json"}
-
     request  = Net::HTTP::Post.new(@url.path, header)
     request.digest_auth(@user, @pass, @auth_header)
-    request.body = json
+    request.body = body
     response = @connection.request(request)
 
     case response
@@ -96,6 +103,25 @@ class Base
   end
 
   protected
+
+    def multipart_upload(file)
+      json = wrap_json("switchvox.file.add")
+
+      # build the body of the request
+      # add the file data
+      post_body = []
+      post_body << "--#{BOUNDRY}\r\n"
+      post_body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file)}\"\r\n"
+      post_body << "Content-Type: application/octet-stream\r\n\r\n"
+      post_body << File.read(file)
+
+      # add the json with the method name
+      post_body << "--#{BOUNDRY}\r\n"
+      post_body << "Content-Disposition: form-data; name=\"request\"\r\n\r\n"
+      post_body << json
+      post_body << "\r\n\r\n--#{BOUNDRY}--\r\n"
+      return post_body.join
+    end
 
     # Check to see if we are logged in
     def logged_in?
