@@ -19,7 +19,7 @@ describe Switchvox::Base do
     # add a public instance to a private method for testing
     # create a test file
     before(:all) do
-      module Switchvox; class Base; def public_multipart_upload(f); multipart_upload(f); end; end; end
+      module Switchvox; class Base; def public_multipart_upload(m, f); multipart_upload(m, f); end; end; end
       File.open "/tmp/testfile.xml", "w" do |file|
         file.write("<element></element>")
       end
@@ -27,11 +27,11 @@ describe Switchvox::Base do
     end
 
     it "should return a string" do
-      switchvox.public_multipart_upload(@file).class.should eq String
+      switchvox.public_multipart_upload("switchvox.file.add", image_file: @file).class.should eq String
     end
 
     it "should return form data" do
-      switchvox.public_multipart_upload(@file).should include "Content-Disposition: form-data;"
+      switchvox.public_multipart_upload("switchvox.file.add", image_file: @file).should include "Content-Disposition: form-data;"
     end
   end
 

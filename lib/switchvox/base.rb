@@ -9,6 +9,7 @@ require 'digest/md5'
 require 'rubygems'
 require 'json'
 require 'ostruct'
+require 'mime/types'
 
 # Raised when credentials are incorrect
 class LoginError < RuntimeError
@@ -55,34 +56,17 @@ class Base
 
   # A standard REST call to get a list of entries
   def request(method, parameters={})
-    login! unless logged_in?
-
-    # if the method is a switchvox.file.add, the post needs to be a multipart upload
-    unless method == "switchvox.file.add"
-      body = wrap_json(method, parameters)
-      header   = {'Content-Type' => "text/json"}
-    else
-      body = multipart_upload(parameters[:file])
-      header = {'Content-Type' => 'multipart/form-data; boundry=' + BOUNDRY}
-    end
-
+    body = wrap_json(method, parameters)
+    header   = {'Content-Type' => "text/json"}
     # Send the request
-    request  = Net::HTTP::Post.new(@url.path, header)
-    request.digest_auth(@user, @pass, @auth_header)
-    request.body = body
-    response = @connection.request(request)
+    send_request(body, header)
 
-    case response
-      when Net::HTTPOK
-        raise EmptyResponse unless response.body
-        return json_parse(response.body)
-      when Net::HTTPUnauthorized
-        login!
-        request(method, parameters)
-      when Net::HTTPForbidden
-        raise LoginError, "Invalid Username or Password"
-      else raise UnhandledResponse, "Can't handle response #{response}"
-    end
+  end
+
+  def upload(method, parameters={})
+    body = multipart_upload(method, parameters)
+    header = {'Content-Type' => 'multipart/form-data; boundry=' + BOUNDRY}
+    send_request(body, header)
   end
 
   # TODO - cover this with specs and return json not call other method
@@ -104,15 +88,46 @@ class Base
 
   protected
 
-    def multipart_upload(file)
-      json = wrap_json("switchvox.file.add")
+    def send_request(body, header)
+      login! unless logged_in?
+      request  = Net::HTTP::Post.new(@url.path, header)
+      request.digest_auth(@user, @pass, @auth_header)
+      request.body = body
+      response = @connection.request(request)
+
+      case response
+        when Net::HTTPOK
+          raise EmptyResponse unless response.body
+          return json_parse(response.body)
+        when Net::HTTPUnauthorized
+          login!
+          request(method, parameters)
+        when Net::HTTPForbidden
+          raise LoginError, "Invalid Username or Password"
+        else raise UnhandledResponse, "Can't handle response #{response}"
+      end
+    end
+
+    def multipart_upload(method, parameters)
+
+      # assume the parameter with the word 'file' as part of the key represents the file to be uploaded
+      # we'll set it to the file variable then remove it from the rest of the parameters
+      file = ""
+      parameters.each do |k,v|
+        if k.to_s.scan('file').length > 0
+          file = v
+          parameters.delete(k)
+          break
+        end
+      end
+      json = wrap_json(method, parameters)
 
       # build the body of the request
       # add the file data
       post_body = []
       post_body << "--#{BOUNDRY}\r\n"
       post_body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file)}\"\r\n"
-      post_body << "Content-Type: application/octet-stream\r\n\r\n"
+      post_body << "Content-Type: #{MIME::Types.type_for(file)[0]}\r\n\r\n"
       post_body << File.read(file)
 
       # add the json with the method name
