@@ -27,7 +27,7 @@ end
 class Base
 
   URL = "/json"
-  BOUNDRY = "---------------------------7d44e178b0434"
+  BOUNDARY = "---------------------------7d44e178b0434"
   attr :host, true
   attr :url, true
   attr :user, false
@@ -65,7 +65,7 @@ class Base
 
   def upload(method, parameters={})
     body = multipart_upload(method, parameters)
-    header = {'Content-Type' => 'multipart/form-data; boundry=' + BOUNDRY}
+    header = {'Content-Type' => 'multipart/form-data; boundary=' + BOUNDARY}
     send_request(body, header)
   end
 
@@ -125,16 +125,16 @@ class Base
       # build the body of the request
       # add the file data
       post_body = []
-      post_body << "--#{BOUNDRY}\r\n"
+      post_body << "--#{BOUNDARY}\r\n"
       post_body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file)}\"\r\n"
       post_body << "Content-Type: #{MIME::Types.type_for(file)[0]}\r\n\r\n"
       post_body << File.read(file)
 
       # add the json with the method name
-      post_body << "--#{BOUNDRY}\r\n"
+      post_body << "--#{BOUNDARY}\r\n"
       post_body << "Content-Disposition: form-data; name=\"request\"\r\n\r\n"
       post_body << json
-      post_body << "\r\n\r\n--#{BOUNDRY}--\r\n"
+      post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
       return post_body.join
     end
 
