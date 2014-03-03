@@ -9,6 +9,8 @@ Gem::Specification.new do |spec|
   spec.require_path = 'lib'
   spec.files = File.read('Manifest.txt').split("\n")
 
+  spec.add_dependency('mime-types', '~> 2.1')
+
   spec.add_development_dependency('rake', '~> 10.0')
   spec.add_development_dependency('rspec', '~> 2.12')
   spec.add_development_dependency('ffaker', '~> 1.15')
